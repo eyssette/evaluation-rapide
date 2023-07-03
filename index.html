@@ -41,7 +41,7 @@
 			background-color: #EEE;
 			padding: 10px 2px;
 			border-radius: 20px;
-			cursor:pointer;
+			cursor: pointer;
 		}
 
 		label {
@@ -58,8 +58,8 @@
 
 
 		.result+p {
-			margin-top:0.5em;
-			font-size:0.7em;
+			margin-top: 0.5em;
+			font-size: 0.7em;
 			color: #333;
 		}
 
@@ -68,8 +68,25 @@
 			margin-bottom: 100px;
 			color: rgb(0, 0, 130)
 		}
-		
 
+		.toast {
+			position: fixed;
+			bottom: 100px;
+			left: 50%;
+			transform: translateX(-50%);
+			background-color: #333;
+			color: #fff;
+			padding: 10px 20px;
+			border-radius: 5px;
+			font-family: Arial, sans-serif;
+			font-size: 14px;
+			opacity: 0;
+			transition: opacity 0.3s ease;
+		}
+
+		.toast.show {
+			opacity: 1;
+		}
 	</style>
 </head>
 
@@ -84,21 +101,19 @@
 
 		<label for="problemesFormels">Problèmes formels</label>
 		<p>(clarté de l'expression, organisation du propos, méthode, lien avec le sujet)</p>
-		<input type="range" id="problemesFormels" class="slider" min="10" max="100" value="10"
-			onchange="calculNote()">
+		<input type="range" id="problemesFormels" class="slider" min="10" max="100" value="10" onchange="calculNote()">
 		<div>Plusieurs problèmes importants<span style="float:right">Aucun problème</span></div>
 
 
 
 		<label for="pertinenceContenu">Pertinence du contenu</label>
 		<p>(pistes de réflexion, connaissances bien mobilisées)</p>
-		<input type="range" id="pertinenceContenu" class="slider" min="10" max="100" value="10"
-			onchange="calculNote()">
+		<input type="range" id="pertinenceContenu" class="slider" min="10" max="100" value="10" onchange="calculNote()">
 		<div>Aucune pertinence<span style="float:right">Contenu très pertinent</span></div>
 
 
 
-		<div class="result" id="result"  onclick="copyToClipboard()">Note :</div>
+		<div class="result" id="result" onclick="copyToClipboard()">Note :</div>
 		<p>Cliquer sur la note pour la<br>copier dans le presse-papier</p>
 	</main>
 	<script>
@@ -128,10 +143,23 @@
 
 			document.getElementById('result').innerHTML = "Note : " + noteArrondie;
 		}
-		function copyToClipboard() {
+		function copyToClipboard() {
 			var note = document.getElementById('result').innerHTML;
-      		note = note.replace("Note : ", "");
+			note = note.replace("Note : ", "");
 			navigator.clipboard.writeText(note);
+			var toast = document.createElement("div");
+			toast.className = "toast";
+			toast.textContent = "La note " + note + " a été copiée dans le presse-papiers";
+			document.body.appendChild(toast);
+
+			setTimeout(function () {
+				toast.classList.add("show");
+			}, 100);
+
+			setTimeout(function () {
+				toast.classList.remove("show");
+				document.body.removeChild(toast);
+			}, 2000);
 		}
 	</script>
 </body>
