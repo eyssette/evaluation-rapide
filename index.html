@@ -1,25 +1,123 @@
-<!doctype html>
-<html lang="fr">
+<!DOCTYPE html>
+<html>
+
 <head>
-  <meta charset="utf-8">
-  <title>Évaluation des devoirs</title>
-  <meta name="description" content="Évaluation des devoirs">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<title>Calculateur de note pour un devoir - évaluation assistée par ordinateur</title>
+	<style>
+		body {
+			background-color: black;
+		}
+
+		main {
+			width: 90%;
+			max-width: 600px;
+			padding: 100px 5vw;
+			/* 
+			padding: 100px; */
+			margin: auto;
+			margin-top: 30px;
+			background-color: white;
+			border-radius: 15px;
+			font-size: 24px;
+			text-align: center;
+		}
+
+		input+div {
+			text-align: left;
+			font-size: 0.9em;
+		}
+
+		.slider {
+			width: 100%;
+			margin-top: 1.25em;
+		}
+
+		.result {
+			font-weight: bold;
+			margin: auto;
+			margin-top: 100px;
+			width: 40%;
+			border: 2px solid #AAA;
+			background-color: #EEE;
+			padding: 10px 2px;
+			border-radius: 20px;
+		}
+
+		label {
+			display: block;
+			margin-top: 50px;
+			font-weight: bold;
+			font-size: 1.2em;
+		}
+
+		p {
+			margin-top: 0.2em;
+			font-size: 0.8em;
+		}
+
+		h1 {
+			margin-top: 0;
+			margin-bottom: 100px;
+			color: rgb(0, 0, 130)
+		}
+	</style>
 </head>
+
 <body>
-<h1>Introduction</h1>
-<ul id="introduction"><li>Catastrophique <br />Très insuffisante</li><li>Insuffisante<br />Très moyenne</li><li>À peu près correcte<br />Assez bien</li><li>Bien<br /> Très bien</li><li>Excellente<br /> Parfaite</li></ul>
-<h1>1ère partie</h1>
-<ul id="partie-1"><li>Catastrophique <br />Très insuffisante</li><li>Insuffisante<br />Très moyenne</li><li>À peu près correcte<br />Assez bien</li><li>Bien<br /> Très bien</li><li>Excellente<br /> Parfaite</li></ul>
-<h1>2e partie</h1>
-<ul id="partie-2"><li>Catastrophique <br />Très insuffisante</li><li>Insuffisante<br />Très moyenne</li><li>À peu près correcte<br />Assez bien</li><li>Bien<br /> Très bien</li><li>Excellente<br /> Parfaite</li></ul>
-<h1>3e partie</h1>
-<ul id="partie-3"><li>Catastrophique <br />Très insuffisante</li><li>Insuffisante<br />Très moyenne</li><li>À peu près correcte<br />Assez bien</li><li>Bien<br /> Très bien</li><li>Excellente<br /> Parfaite</li></ul>
-<h1>Conclusion</h1>
-<ul id="conclusion"><li>Catastrophique <br />Très insuffisante</li><li>Insuffisante<br />Très moyenne</li><li>À peu près correcte<br />Assez bien</li><li>Bien<br /> Très bien</li><li>Excellente<br /> Parfaite</li></ul>
-<h1 id="calcul-note">Note calculée : <span id="note"></span></h1>
+	<main>
+		<h1>Évaluation d'une copie</h1>
+
+		<label for="tailleCopie">Taille de la copie</label>
+		<input type="range" id="tailleCopie" class="slider" min="10" max="100" value="10" onchange="calculNote()">
+		<div>Copie très courte<span style="float:right">Copie très développée</span></div>
+
+
+		<label for="problemesFormels">Problèmes formels</label>
+		<p>(clarté de l'expression, organisation du propos, méthode, lien avec le sujet)</p>
+		<input type="range" id="problemesFormels" class="slider" min="10" max="100" value="10"
+			onchange="calculNote()">
+		<div>Plusieurs problèmes importants<span style="float:right">Aucun problème</span></div>
+
+
+
+		<label for="pertinenceContenu">Pertinence du contenu</label>
+		<p>(pistes de réflexion, connaissances bien mobilisées)</p>
+		<input type="range" id="pertinenceContenu" class="slider" min="10" max="100" value="10"
+			onchange="calculNote()">
+		<div>Aucune pertinence<span style="float:right">Contenu très pertinent</span></div>
+
+
+
+		<div class="result" id="result">Note :</div>
+	</main>
+	<script>
+		var tailleCopie = 0.1
+		var problemesFormels = 0.1
+		var pertinenceContenu = 0.1
+		calculNote()
+		function arrondir(num) {
+			return Math.round(num * 4) / 4;
+		}
+		function calculNote() {
+			tailleCopie = document.getElementById('tailleCopie').value / 100;
+			problemesFormels = document.getElementById('problemesFormels').value / 100;
+			pertinenceContenu = document.getElementById('pertinenceContenu').value / 100;
+
+			var calculTailleCopie = 11 + 8 * Math.log10(tailleCopie);
+			var calculPertinence = 9.5 * (pertinenceContenu * calculTailleCopie) / 12;
+			var calculProblemesFormels = (8 + tailleCopie + Math.log10(calculPertinence)) * tailleCopie * Math.log10(problemesFormels);
+			var calculMalus = Math.log10(pertinenceContenu * calculTailleCopie) * 2 < 0 ? Math.log10(pertinenceContenu * calculTailleCopie) * 2 : 0
+
+			var note = Math.round((0.56 + 0.77 * calculTailleCopie + 1.15 * calculPertinence + 0.78 * calculProblemesFormels + 2.75 * calculMalus) * 100) / 100
+
+			var noteArrondie = note < 12 ? arrondir(note - 0.25) : arrondir(note + 0.25 * tailleCopie)
+
+			noteArrondie = noteArrondie < 0 ? 0 : noteArrondie;
+			noteArrondie = note > 19.01 ? 20 : noteArrondie;
+
+			document.getElementById('result').innerHTML = " Note : " + noteArrondie;
+		}
+	</script>
 </body>
-  <script src="evaluation.js"></script>
+
 </html>
