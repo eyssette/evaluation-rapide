@@ -41,6 +41,7 @@
 			background-color: #EEE;
 			padding: 10px 2px;
 			border-radius: 20px;
+			cursor:pointer;
 		}
 
 		label {
@@ -55,11 +56,20 @@
 			font-size: 0.8em;
 		}
 
+
+		.result+p {
+			margin-top:0.5em;
+			font-size:0.7em;
+			color: #333;
+		}
+
 		h1 {
 			margin-top: 0;
 			margin-bottom: 100px;
 			color: rgb(0, 0, 130)
 		}
+		
+
 	</style>
 </head>
 
@@ -88,7 +98,8 @@
 
 
 
-		<div class="result" id="result">Note :</div>
+		<div class="result" id="result"  onclick="copyToClipboard()">Note :</div>
+		<p>Cliquer sur la note pour la<br>copier dans le presse-papier</p>
 	</main>
 	<script>
 		var tailleCopie = 0.1
@@ -115,7 +126,12 @@
 			noteArrondie = noteArrondie < 0 ? 0 : noteArrondie;
 			noteArrondie = note > 19.01 ? 20 : noteArrondie;
 
-			document.getElementById('result').innerHTML = " Note : " + noteArrondie;
+			document.getElementById('result').innerHTML = "Note : " + noteArrondie;
+		}
+		function copyToClipboard() {
+			var note = document.getElementById('result').innerHTML;
+      		note = note.replace("Note : ", "");
+			navigator.clipboard.writeText(note);
 		}
 	</script>
 </body>
