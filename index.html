@@ -117,28 +117,35 @@
 		<p>Cliquer sur la note pour la<br>copier dans le presse-papier</p>
 	</main>
 	<script>
-		calculNote()
+
 		function arrondir(num) {
+			/* Pour arrondir à un multiple de 0.25 */
 			return Math.round(num * 4) / 4;
 		}
-		
-		function maximum(forme,contenu) {
+
+		function algoCalcul(taille, forme, contenu) {
+			var calculTailleCopie = 11 + 8 * Math.log10(taille);
+			var calculPertinence = 9.5 * (contenu * calculTailleCopie) / 12;
+			var calculProblemesFormels = (8 + taille + Math.log10(calculPertinence)) * taille * Math.log10(forme);
+			var calculMalus = Math.log10(contenu * calculTailleCopie) * 2 < 0 ? Math.log10(contenu * calculTailleCopie) * 2 : 0
+			var note = Math.round((0.56 + 0.77 * calculTailleCopie + 1.15 * calculPertinence + 0.78 * calculProblemesFormels + 2.75 * calculMalus) * 100) / 100
+			var noteArrondie = note < 12 ? arrondir(note - 0.25) : arrondir(note + 0.25 * tailleCopie)
+			noteArrondie = noteArrondie < 0 ? 0 : noteArrondie;
+			noteArrondie = note > 19.01 ? 20 : noteArrondie;
+			return noteArrondie
+		}
+
+		function maximum(forme, contenu) {
+			/* Sans cette fonction, la note calculée peut baisser alors que la taille de la copie augmente (dans les cas où problemesFormels et pertinenceContenu sont faibles) */
 			var max = 0;
 			var bascule = 0
 			for (let taille = 0; taille < 100; taille++) {
-				tailleCopie = taille/100
-				var calculTailleCopie = 11 + 8 * Math.log10(tailleCopie);
-				var calculPertinence = 9.5 * (contenu * calculTailleCopie) / 12;
-				var calculProblemesFormels = (8 + tailleCopie + Math.log10(calculPertinence)) * tailleCopie * Math.log10(forme);
-				var calculMalus = Math.log10(contenu * calculTailleCopie) * 2 < 0 ? Math.log10(contenu * calculTailleCopie) * 2 : 0
-				var note = Math.round((0.56 + 0.77 * calculTailleCopie + 1.15 * calculPertinence + 0.78 * calculProblemesFormels + 2.75 * calculMalus) * 100) / 100
-				var noteArrondie = note < 12 ? arrondir(note - 0.25) : arrondir(note + 0.25 * tailleCopie)
-				noteArrondie = noteArrondie < 0 ? 0 : noteArrondie;
-				noteArrondie = note > 19.01 ? 20 : noteArrondie;
-				max = noteArrondie>max ? noteArrondie : max;
-				if (noteArrondie > 0 && noteArrondie < max && bascule == 0) {bascule = taille/100}
-			}	
-			return [bascule,max]
+				tailleCopie = taille / 100
+				var noteArrondie = algoCalcul(tailleCopie, forme, contenu);
+				max = noteArrondie > max ? noteArrondie : max;
+				if (noteArrondie > 0 && noteArrondie < max && bascule == 0) { bascule = taille / 100 }
+			}
+			return [bascule, max]
 		}
 
 		function calculNote() {
@@ -146,25 +153,16 @@
 			var problemesFormels = document.getElementById('problemesFormels').value / 100;
 			var pertinenceContenu = document.getElementById('pertinenceContenu').value / 100;
 
-			var calculTailleCopie = 11 + 8 * Math.log10(tailleCopie);
-			var calculPertinence = 9.5 * (pertinenceContenu * calculTailleCopie) / 12;
-			var calculProblemesFormels = (8 + tailleCopie + Math.log10(calculPertinence)) * tailleCopie * Math.log10(problemesFormels);
-			var calculMalus = Math.log10(pertinenceContenu * calculTailleCopie) * 2 < 0 ? Math.log10(pertinenceContenu * calculTailleCopie) * 2 : 0
-
-			var note = Math.round((0.56 + 0.77 * calculTailleCopie + 1.15 * calculPertinence + 0.78 * calculProblemesFormels + 2.75 * calculMalus) * 100) / 100
-
-			var noteArrondie = note < 12 ? arrondir(note - 0.25) : arrondir(note + 0.25 * tailleCopie)
-
-			noteArrondie = noteArrondie < 0 ? 0 : noteArrondie;
-			noteArrondie = note > 19.01 ? 20 : noteArrondie;
+			var noteArrondie = algoCalcul(tailleCopie, problemesFormels, pertinenceContenu)
 
 			if (tailleCopie > 0.5) {
-				pointBascule = maximum(problemesFormels,pertinenceContenu)
-				if (pointBascule[0] !==0 && tailleCopie > pointBascule[0] && noteArrondie < pointBascule[1]) {noteArrondie = pointBascule[1]}
+				pointBascule = maximum(problemesFormels, pertinenceContenu)
+				if (pointBascule[0] !== 0 && tailleCopie > pointBascule[0] && noteArrondie < pointBascule[1]) { noteArrondie = pointBascule[1] }
 			}
 
 			document.getElementById('result').innerHTML = "Note : " + noteArrondie;
 		}
+
 		function copyToClipboard() {
 			var note = document.getElementById('result').innerHTML;
 			note = note.replace("Note : ", "");
