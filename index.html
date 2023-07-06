@@ -124,7 +124,7 @@
 
 		<label for="tailleCopie">Taille de la copie</label>
 		<input type="range" id="tailleCopie" class="slider" min="10" max="100" value="10" onchange="calculNote()">
-		<div>Copie très courte<span style="float:right">Copie très développée</span></div>
+		<div>Extrêmement courte<span style="float:right">Très développée</span></div>
 
 
 		<label for="problemesFormels">Problèmes formels</label>
@@ -187,7 +187,7 @@
 				pointBascule = maximum(problemesFormels, pertinenceContenu)
 				if (pointBascule[0] !== 0 && tailleCopie > pointBascule[0] && noteArrondie < pointBascule[1]) { noteArrondie = pointBascule[1] }
 			}
-
+			console.log("taille : "+tailleCopie+ " forme : "+ problemesFormels+" contenu : "+ pertinenceContenu)
 			document.getElementById('result').innerHTML = "Note : " + noteArrondie;
 		}
 
