@@ -113,21 +113,38 @@
 
 
 
-		<div class="result" id="result" onclick="copyToClipboard()">Note :</div>
+		<div class="result" id="result" onclick="copyToClipboard()">Note : 0</div>
 		<p>Cliquer sur la note pour la<br>copier dans le presse-papier</p>
 	</main>
 	<script>
-		var tailleCopie = 0.1
-		var problemesFormels = 0.1
-		var pertinenceContenu = 0.1
 		calculNote()
 		function arrondir(num) {
 			return Math.round(num * 4) / 4;
 		}
+		
+		function maximum(forme,contenu) {
+			var max = 0;
+			var bascule = 0
+			for (let taille = 0; taille < 100; taille++) {
+				tailleCopie = taille/100
+				var calculTailleCopie = 11 + 8 * Math.log10(tailleCopie);
+				var calculPertinence = 9.5 * (contenu * calculTailleCopie) / 12;
+				var calculProblemesFormels = (8 + tailleCopie + Math.log10(calculPertinence)) * tailleCopie * Math.log10(forme);
+				var calculMalus = Math.log10(contenu * calculTailleCopie) * 2 < 0 ? Math.log10(contenu * calculTailleCopie) * 2 : 0
+				var note = Math.round((0.56 + 0.77 * calculTailleCopie + 1.15 * calculPertinence + 0.78 * calculProblemesFormels + 2.75 * calculMalus) * 100) / 100
+				var noteArrondie = note < 12 ? arrondir(note - 0.25) : arrondir(note + 0.25 * tailleCopie)
+				noteArrondie = noteArrondie < 0 ? 0 : noteArrondie;
+				noteArrondie = note > 19.01 ? 20 : noteArrondie;
+				max = noteArrondie>max ? noteArrondie : max;
+				if (noteArrondie > 0 && noteArrondie < max && bascule == 0) {bascule = taille/100}
+			}	
+			return [bascule,max]
+		}
+
 		function calculNote() {
-			tailleCopie = document.getElementById('tailleCopie').value / 100;
-			problemesFormels = document.getElementById('problemesFormels').value / 100;
-			pertinenceContenu = document.getElementById('pertinenceContenu').value / 100;
+			var tailleCopie = document.getElementById('tailleCopie').value / 100;
+			var problemesFormels = document.getElementById('problemesFormels').value / 100;
+			var pertinenceContenu = document.getElementById('pertinenceContenu').value / 100;
 
 			var calculTailleCopie = 11 + 8 * Math.log10(tailleCopie);
 			var calculPertinence = 9.5 * (pertinenceContenu * calculTailleCopie) / 12;
@@ -140,6 +157,11 @@
 
 			noteArrondie = noteArrondie < 0 ? 0 : noteArrondie;
 			noteArrondie = note > 19.01 ? 20 : noteArrondie;
+
+			if (tailleCopie > 0.5) {
+				pointBascule = maximum(problemesFormels,pertinenceContenu)
+				if (pointBascule[0] !==0 && tailleCopie > pointBascule[0] && noteArrondie < pointBascule[1]) {noteArrondie = pointBascule[1]}
+			}
 
 			document.getElementById('result').innerHTML = "Note : " + noteArrondie;
 		}
